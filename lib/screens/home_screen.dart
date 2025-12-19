@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'palpitar_screen.dart';
+import 'historico_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,14 +14,14 @@ class HomeScreen extends StatelessWidget {
           children: [
             // LOGO + TÍTULO
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: Column(
                 children: [
                   Image.asset(
                     'assets/matchmind_logo.png',
-                    height: 140, // LOGO MAIOR
+                    height: 140,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
                   const Text(
                     'PALPITES INTELIGENTES',
                     style: TextStyle(
@@ -33,6 +34,39 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+
+            // BOTÃO HISTÓRICO
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.greenAccent,
+                    side: const BorderSide(color: Colors.greenAccent),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: const Icon(Icons.history),
+                  label: const Text(
+                    'HISTÓRICO DE PALPITES',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const HistoricoScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
 
             // LISTA DE JOGOS
             Expanded(
@@ -145,7 +179,7 @@ class MatchBetCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // BOTÃO FUNCIONANDO
+          // BOTÃO PALPITE
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -229,4 +263,5 @@ class MatchBetCard extends StatelessWidget {
     );
   }
 }
+
 
