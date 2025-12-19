@@ -13,93 +13,99 @@ class MatchAnalysisScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         title: const Text(
           'Análise da Partida',
-          style: TextStyle(color: Colors.greenAccent),
+          style: TextStyle(color: Colors.white),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.greenAccent),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // JOGO
+            // Jogo
             Text(
               match,
-              textAlign: TextAlign.center,
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // PROBABILIDADES
-            _probabilityCard(
+            _probCard(
               icon: Icons.home,
-              label: 'Vitória Casa',
+              label: 'Probabilidade Casa',
               value: '45%',
               color: Colors.greenAccent,
             ),
-            _probabilityCard(
+            _probCard(
               icon: Icons.balance,
-              label: 'Empate',
+              label: 'Probabilidade Empate',
               value: '28%',
-              color: Colors.orangeAccent,
+              color: Colors.amberAccent,
             ),
-            _probabilityCard(
-              icon: Icons.flight,
-              label: 'Vitória Visitante',
+            _probCard(
+              icon: Icons.flight_takeoff,
+              label: 'Probabilidade Visitante',
               value: '27%',
               color: Colors.redAccent,
             ),
 
             const SizedBox(height: 20),
 
-            // RESUMO IA
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+            const Text(
+              'Resumo da IA',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
-              child: const Text(
-                'Resumo da IA:\n\n'
-                'O time da casa apresenta leve vantagem devido ao fator '
-                'campo e consistência recente. O visitante possui potencial '
-                'ofensivo e pode surpreender. O empate é um cenário possível.',
-                style: TextStyle(color: Colors.white70, height: 1.4),
-              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'O time da casa tem vantagem jogando em seus domínios, '
+              'mas o visitante apresenta bom desempenho recente. '
+              'O empate não pode ser descartado.',
+              style: TextStyle(color: Colors.white70),
             ),
 
             const Spacer(),
 
-            // BOTÃO PRO
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.greenAccent),
               ),
-              onPressed: () {},
-              child: const Text(
-                'Desbloquear MatchMind PRO',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: Column(
+                children: const [
+                  Text(
+                    'Conteúdo PRO bloqueado',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    'Assine para desbloquear análises avançadas',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Desbloquear MatchMind Pro',
+                    style: TextStyle(
+                      color: Colors.greenAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-            const SizedBox(height: 8),
-
-            const Text(
-              'Aviso: análises não garantem resultados financeiros.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white38, fontSize: 12),
             ),
           ],
         ),
@@ -107,7 +113,7 @@ class MatchAnalysisScreen extends StatelessWidget {
     );
   }
 
-  Widget _probabilityCard({
+  Widget _probCard({
     required IconData icon,
     required String label,
     required String value,
@@ -134,8 +140,8 @@ class MatchAnalysisScreen extends StatelessWidget {
             value,
             style: TextStyle(
               color: color,
-              fontSize: 18,
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
         ],
