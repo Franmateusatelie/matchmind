@@ -19,7 +19,7 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'Palpite',
+          'Dar Palpite',
           style: TextStyle(color: Colors.greenAccent),
         ),
         centerTitle: true,
@@ -31,10 +31,10 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
             // LOGO
             Image.asset(
               'assets/matchmind_logo.png',
-              height: 120,
+              height: 110,
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // JOGO
             Text(
@@ -48,37 +48,63 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
 
             const SizedBox(height: 30),
 
-            // BOTÕES DE PALPITE
-            palpiteBotao('Vitória Casa', 'HOME', '1.85'),
+            // OPÇÕES DE PALPITE
+            palpiteBotao('Vitória Mandante', 'HOME', '1.85'),
             palpiteBotao('Empate', 'DRAW', '3.20'),
             palpiteBotao('Vitória Visitante', 'AWAY', '2.10'),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-            // IA SUGESTÃO
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1A1A1A),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+            // MOSTRAR PALPITE ESCOLHIDO
+            if (selected != null)
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A1A),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.greenAccent),
+                ),
+                child: Text(
+                  'Seu palpite: $selected',
+                  style: const TextStyle(
+                    color: Colors.greenAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              child: Column(
-                children: const [
-                  Text(
-                    '🤖 Análise MatchMind IA',
-                    style: TextStyle(
-                      color: Colors.greenAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
+
+            const Spacer(),
+
+            // CONFIRMAR PALPITE
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      selected == null ? Colors.grey : Colors.greenAccent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Placar provável: 2 x 1\nProbabilidade: 64%',
-                    style: TextStyle(color: Colors.white70),
-                    textAlign: TextAlign.center,
+                ),
+                onPressed: selected == null
+                    ? null
+                    : () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Palpite registrado com sucesso!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                child: const Text(
+                  'CONFIRMAR PALPITE',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                ],
+                ),
               ),
             ),
           ],
