@@ -14,6 +14,7 @@ class PalpitarScreen extends StatefulWidget {
 class _PalpitarScreenState extends State<PalpitarScreen> {
   String? escolhido;
   late Map<String, dynamic> palpiteIA;
+  bool confirmado = false;
 
   @override
   void initState() {
@@ -38,72 +39,89 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
         child: Column(
           children: [
             Image.asset('assets/matchmind_logo.png', height: 90),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             Text(
               widget.match,
-              style: const TextStyle(color: Colors.white, fontSize: 20),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              '🤖 Palpite do App: ${palpiteIA['resultado']}',
               style: const TextStyle(
-                color: Colors.greenAccent,
+                color: Colors.white,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 20),
 
-            Text(
-              'Placar provável: ${palpiteIA['placar']}',
-              style: const TextStyle(color: Colors.white70),
+            // PALPITE DA IA
+            _card(
+              title: '🤖 Palpite da IA',
+              content:
+                  '${palpiteIA['resultado']} | Placar provável: ${palpiteIA['placar']}',
+              color: Colors.greenAccent,
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
-            botao('Vitória Mandante'),
-            botao('Empate'),
-            botao('Vitória Visitante'),
+            // OPÇÕES DO USUÁRIO
+            _botao('Vitória Mandante'),
+            _botao('Empate'),
+            _botao('Vitória Visitante'),
 
             const Spacer(),
 
-            ElevatedButton(
-              onPressed: escolhido == null
-                  ? null
-                  : () {
-                      HistoricoPalpites.palpites.add({
-                        'jogo': widget.match,
-                        'palpite': escolhido!,
-                        'placar': palpiteIA['placar'],
-                      });
+            // CONFIRMAR
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      escolhido == null ? Colors.grey : Colors.greenAccent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: escolhido == null
+                    ? null
+                    : () {
+                        setState(() {
+                          confirmado = true;
+                        });
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Palpite salvo no histórico!'),
-                        ),
-                      );
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text(
-                'CONFIRMAR PALPITE',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                        HistoricoPalpites.palpites.add({
+                          'jogo': widget.match,
+                          'palpite': escolhido!,
+                          'placar': palpiteIA['placar'],
+                          'ia': palpiteIA['resultado'],
+                        });
+                      },
+                child: const Text(
+                  'CONFIRMAR PALPITE',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
+
+            const SizedBox(height: 16),
+
+            // RESULTADO DA COMPARAÇÃO
+            if (confirmado)
+              _card(
+                title: '📊 Comparação',
+                content: escolhido == palpiteIA['resultado']
+                    ? 'Você concordou com a IA ✅'
+                    : 'Seu palpite foi diferente da IA ❌',
+                color: escolhido == palpiteIA['resultado']
+                    ? Colors.greenAccent
+                    : Colors.redAccent,
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget botao(String texto) {
-    bool ativo = escolhido == texto;
+  Widget _botao(String texto) {
+    final ativo = escolhido == texto;
+
     return GestureDetector(
       onTap: () {
         setState(() => escolhido = texto);
@@ -127,5 +145,34 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
       ),
     );
   }
-}
 
+  Widget _card({
+    required String title,
+    required String content,
+    required Color color,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            content,
+            style: const TextStyle(color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+}
