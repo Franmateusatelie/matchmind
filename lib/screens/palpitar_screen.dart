@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../utils/palpite_engine.dart';
+import '../data/historico_palpites.dart';
 
 class PalpitarScreen extends StatefulWidget {
   final String match;
@@ -10,7 +12,14 @@ class PalpitarScreen extends StatefulWidget {
 }
 
 class _PalpitarScreenState extends State<PalpitarScreen> {
-  String? selected;
+  String? escolhido;
+  late Map<String, dynamic> palpiteIA;
+
+  @override
+  void initState() {
+    super.initState();
+    palpiteIA = PalpiteEngine.gerarPalpite();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +28,7 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          'Dar Palpite',
+          'Palpite MatchMind',
           style: TextStyle(color: Colors.greenAccent),
         ),
         centerTitle: true,
@@ -28,83 +37,63 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // LOGO
-            Image.asset(
-              'assets/matchmind_logo.png',
-              height: 110,
-            ),
+            Image.asset('assets/matchmind_logo.png', height: 90),
+            const SizedBox(height: 12),
 
-            const SizedBox(height: 16),
-
-            // JOGO
             Text(
               widget.match,
+              style: const TextStyle(color: Colors.white, fontSize: 20),
+            ),
+
+            const SizedBox(height: 20),
+
+            Text(
+              '🤖 Palpite do App: ${palpiteIA['resultado']}',
               style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
+                color: Colors.greenAccent,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 8),
 
-            // OPÇÕES DE PALPITE
-            palpiteBotao('Vitória Mandante', 'HOME', '1.85'),
-            palpiteBotao('Empate', 'DRAW', '3.20'),
-            palpiteBotao('Vitória Visitante', 'AWAY', '2.10'),
+            Text(
+              'Placar provável: ${palpiteIA['placar']}',
+              style: const TextStyle(color: Colors.white70),
+            ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
-            // MOSTRAR PALPITE ESCOLHIDO
-            if (selected != null)
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1A1A1A),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.greenAccent),
-                ),
-                child: Text(
-                  'Seu palpite: $selected',
-                  style: const TextStyle(
-                    color: Colors.greenAccent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            botao('Vitória Mandante'),
+            botao('Empate'),
+            botao('Vitória Visitante'),
 
             const Spacer(),
 
-            // CONFIRMAR PALPITE
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      selected == null ? Colors.grey : Colors.greenAccent,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: selected == null
-                    ? null
-                    : () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Palpite registrado com sucesso!'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      },
-                child: const Text(
-                  'CONFIRMAR PALPITE',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
+            ElevatedButton(
+              onPressed: escolhido == null
+                  ? null
+                  : () {
+                      HistoricoPalpites.palpites.add({
+                        'jogo': widget.match,
+                        'palpite': escolhido!,
+                        'placar': palpiteIA['placar'],
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Palpite salvo no histórico!'),
+                        ),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text(
+                'CONFIRMAR PALPITE',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -113,43 +102,30 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
     );
   }
 
-  Widget palpiteBotao(String texto, String valor, String odd) {
-    final bool ativo = selected == valor;
-
+  Widget botao(String texto) {
+    bool ativo = escolhido == texto;
     return GestureDetector(
       onTap: () {
-        setState(() {
-          selected = valor;
-        });
+        setState(() => escolhido = texto);
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: ativo ? Colors.greenAccent : const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              texto,
-              style: TextStyle(
-                color: ativo ? Colors.black : Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+        child: Center(
+          child: Text(
+            texto,
+            style: TextStyle(
+              color: ativo ? Colors.black : Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-            Text(
-              odd,
-              style: TextStyle(
-                color: ativo ? Colors.black : Colors.greenAccent,
-                fontSize: 16,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
+
