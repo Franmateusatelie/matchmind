@@ -8,144 +8,172 @@ class MatchAnalysisScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0E0E0E),
+      backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text(
-          'Análise da Partida',
-          style: TextStyle(color: Colors.white),
-        ),
-        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
+        title: Image.asset(
+          'assets/matchmind_logo.png',
+          height: 36,
+        ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Jogo
-            Text(
-              match,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            _probCard(
-              icon: Icons.home,
-              label: 'Probabilidade Casa',
-              value: '45%',
-              color: Colors.greenAccent,
-            ),
-            _probCard(
-              icon: Icons.balance,
-              label: 'Probabilidade Empate',
-              value: '28%',
-              color: Colors.amberAccent,
-            ),
-            _probCard(
-              icon: Icons.flight_takeoff,
-              label: 'Probabilidade Visitante',
-              value: '27%',
-              color: Colors.redAccent,
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Resumo da IA',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'O time da casa tem vantagem jogando em seus domínios, '
-              'mas o visitante apresenta bom desempenho recente. '
-              'O empate não pode ser descartado.',
-              style: TextStyle(color: Colors.white70),
-            ),
-
-            const Spacer(),
-
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.greenAccent),
-              ),
-              child: Column(
-                children: const [
-                  Text(
-                    'Conteúdo PRO bloqueado',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    'Assine para desbloquear análises avançadas',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Desbloquear MatchMind Pro',
-                    style: TextStyle(
-                      color: Colors.greenAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _matchCard(),
+            const SizedBox(height: 16),
+            _predictionCard(),
+            const SizedBox(height: 16),
+            _scoreCard(),
+            const SizedBox(height: 16),
+            _oddsCard(),
           ],
         ),
       ),
     );
   }
 
-  Widget _probCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
+  Widget _matchCard() {
+    return _card(
+      child: Column(
         children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.white),
+          Text(
+            match,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 6),
+          const Text(
+            'Análise Inteligente por IA',
+            style: TextStyle(color: Colors.greenAccent),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _predictionCard() {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
           Text(
-            value,
+            'PALPITE DA IA',
             style: TextStyle(
-              color: color,
+              color: Colors.greenAccent,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Vitória do mandante',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Probabilidade estimada: 64%',
+            style: TextStyle(color: Colors.white70),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scoreCard() {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          Text(
+            'PLACAR PROVÁVEL',
+            style: TextStyle(
+              color: Colors.greenAccent,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          Center(
+            child: Text(
+              '2 x 1',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 34,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _oddsCard() {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'ODDS SIMULADAS',
+            style: TextStyle(
+              color: Colors.greenAccent,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _oddRow('Mandante', '1.65'),
+          _oddRow('Empate', '3.40'),
+          _oddRow('Visitante', '4.80'),
+        ],
+      ),
+    );
+  }
+
+  Widget _oddRow(String label, String odd) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(color: Colors.white)),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.greenAccent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              odd,
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _card({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF111111),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.greenAccent.withOpacity(0.3),
+        ),
+      ),
+      child: child,
     );
   }
 }
