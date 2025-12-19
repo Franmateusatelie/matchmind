@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'palpitar_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,7 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Image.asset(
                     'assets/matchmind_logo.png',
-                    height: 110,
+                    height: 140, // LOGO MAIOR
                   ),
                   const SizedBox(height: 12),
                   const Text(
@@ -26,7 +27,7 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.greenAccent,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
+                      letterSpacing: 1.4,
                     ),
                   ),
                 ],
@@ -108,7 +109,7 @@ class MatchBetCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A1A),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+        border: Border.all(color: Colors.greenAccent.withOpacity(0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,9 +143,9 @@ class MatchBetCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
 
-          // BOTÃO
+          // BOTÃO FUNCIONANDO
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -153,11 +154,18 @@ class MatchBetCard extends StatelessWidget {
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               onPressed: () {
-                // próxima tela (palpite)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PalpitarScreen(
+                      match: '$home x $away',
+                    ),
+                  ),
+                );
               },
               child: const Text(
                 'ANALISAR / DAR PALPITE',
@@ -221,3 +229,4 @@ class MatchBetCard extends StatelessWidget {
     );
   }
 }
+
