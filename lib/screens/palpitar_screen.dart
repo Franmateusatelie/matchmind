@@ -1,5 +1,5 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import '../utils/palpite_engine.dart';
 import '../data/historico_palpites.dart';
 
 class PalpitarScreen extends StatefulWidget {
@@ -12,133 +12,217 @@ class PalpitarScreen extends StatefulWidget {
 }
 
 class _PalpitarScreenState extends State<PalpitarScreen> {
-  String? escolhido;
-  late Map<String, dynamic> palpiteIA;
-  bool confirmado = false;
+  String? userPick;
+
+  late String iaPick;
+  late String iaScore;
+  late int iaConfidence;
 
   @override
   void initState() {
     super.initState();
-    palpiteIA = PalpiteEngine.gerarPalpite();
+    _generateIaPrediction();
+  }
+
+  void _generateIaPrediction() {
+    final random = Random();
+
+    final picks = ['1', 'X', '2'];
+    iaPick = picks[random.nextInt(3)];
+
+    final homeGoals = random.nextInt(4);
+    final awayGoals = random.nextInt(4);
+
+    iaScore = '$homeGoals x $awayGoals';
+
+    iaConfidence = 55 + random.nextInt(36); // 55% a 90%
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool concordou = userPick != null && userPick == iaPick;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: const Text(
-          'Palpite MatchMind',
-          style: TextStyle(color: Colors.greenAccent),
-        ),
         centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Image.asset('assets/matchmind_logo.png', height: 90),
-            const SizedBox(height: 10),
-
-            Text(
-              widget.match,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // PALPITE DA IA
-            _card(
-              title: '🤖 Palpite da IA',
-              content:
-                  '${palpiteIA['resultado']} | Placar provável: ${palpiteIA['placar']}',
-              color: Colors.greenAccent,
-            ),
-
-            const SizedBox(height: 16),
-
-            // OPÇÕES DO USUÁRIO
-            _botao('Vitória Mandante'),
-            _botao('Empate'),
-            _botao('Vitória Visitante'),
-
-            const Spacer(),
-
-            // CONFIRMAR
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      escolhido == null ? Colors.grey : Colors.greenAccent,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: escolhido == null
-                    ? null
-                    : () {
-                        setState(() {
-                          confirmado = true;
-                        });
-
-                        HistoricoPalpites.palpites.add({
-                          'jogo': widget.match,
-                          'palpite': escolhido!,
-                          'placar': palpiteIA['placar'],
-                          'ia': palpiteIA['resultado'],
-                        });
-                      },
-                child: const Text(
-                  'CONFIRMAR PALPITE',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // RESULTADO DA COMPARAÇÃO
-            if (confirmado)
-              _card(
-                title: '📊 Comparação',
-                content: escolhido == palpiteIA['resultado']
-                    ? 'Você concordou com a IA ✅'
-                    : 'Seu palpite foi diferente da IA ❌',
-                color: escolhido == palpiteIA['resultado']
-                    ? Colors.greenAccent
-                    : Colors.redAccent,
-              ),
-          ],
+        title: const Text(
+          'ANÁLISE DO JOGO',
+          style: TextStyle(
+            color: Colors.greenAccent,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
         ),
+        iconTheme: const IconThemeData(color: Colors.greenAccent),
+      ),
+      body: Stack(
+        children: [
+          // FUNDO (CAMPO DE FUTEBOL)
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0B6623),
+                  Color(0xFF013220),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+
+                Text(
+                  widget.match,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // PALPITE DA IA
+                _card(
+                  title: 'PALPITE DA IA',
+                  child: Column(
+                    children: [
+                      _greenText('Resultado sugerido: $iaPick'),
+                      const SizedBox(height: 6),
+                      _greenText('Placar provável: $iaScore'),
+                      const SizedBox(height: 6),
+                      _greenText('Confiança: $iaConfidence%'),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // PALPITE DO USUÁRIO
+                _card(
+                  title: 'SEU PALPITE',
+                  child: Row(
+                    children: [
+                      _pickButton('1'),
+                      const SizedBox(width: 10),
+                      _pickButton('X'),
+                      const SizedBox(width: 10),
+                      _pickButton('2'),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // COMPARAÇÃO
+                if (userPick != null)
+                  _card(
+                    title: 'COMPARAÇÃO',
+                    child: Text(
+                      concordou
+                          ? '✔️ Você concorda com a IA'
+                          : '❌ Você discorda da IA',
+                      style: TextStyle(
+                        color:
+                            concordou ? Colors.greenAccent : Colors.redAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+
+                const Spacer(),
+
+                // BOTÃO CONFIRMAR
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent,
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: userPick == null
+                          ? null
+                          : () {
+                              HistoricoService.palpites.add(
+                                HistoricoPalpite(
+                                  campeonato: 'Brasileirão',
+                                  jogo: widget.match,
+                                  palpiteUsuario: userPick!,
+                                  palpiteIa: iaPick,
+                                  confiancaIa: iaConfidence,
+                                ),
+                              );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    concordou
+                                        ? 'Você concordou com a IA ✅'
+                                        : 'Palpite salvo (diferente da IA)',
+                                  ),
+                                  backgroundColor: concordou
+                                      ? Colors.green
+                                      : Colors.orange,
+                                ),
+                              );
+                            },
+                      child: const Text(
+                        'CONFIRMAR PALPITE',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _botao(String texto) {
-    final ativo = escolhido == texto;
+  Widget _pickButton(String value) {
+    final selected = userPick == value;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() => escolhido = texto);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: ativo ? Colors.greenAccent : const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            texto,
-            style: TextStyle(
-              color: ativo ? Colors.black : Colors.white,
-              fontWeight: FontWeight.bold,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            userPick = value;
+          });
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: selected ? Colors.greenAccent : Colors.black,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.greenAccent),
+          ),
+          child: Center(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: selected ? Colors.black : Colors.greenAccent,
+              ),
             ),
           ),
         ),
@@ -146,33 +230,42 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
     );
   }
 
-  Widget _card({
-    required String title,
-    required String content,
-    required Color color,
-  }) {
+  Widget _card({required String title, required Widget child}) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color),
+        color: Colors.black.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.greenAccent.withOpacity(0.6)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.1,
+            ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            content,
-            style: const TextStyle(color: Colors.white),
-          ),
+          const SizedBox(height: 10),
+          child,
         ],
       ),
     );
   }
+
+  Widget _greenText(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        color: Colors.greenAccent,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
 }
+

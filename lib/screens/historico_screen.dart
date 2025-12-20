@@ -6,17 +6,19 @@ class HistoricoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palpites = HistoricoService.palpites;
+
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0E0E0E),
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
           'Histórico de Palpites',
           style: TextStyle(color: Colors.greenAccent),
         ),
-        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.greenAccent),
       ),
-      body: HistoricoPalpites.palpites.isEmpty
+      body: palpites.isEmpty
           ? const Center(
               child: Text(
                 'Nenhum palpite registrado ainda',
@@ -25,37 +27,65 @@ class HistoricoScreen extends StatelessWidget {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: HistoricoPalpites.palpites.length,
-              itemBuilder: (context, index) {
-                final item = HistoricoPalpites.palpites[index];
+              itemCount: palpites.length,
+              itemBuilder: (_, i) {
+                final p = palpites[i];
+                final concordou = p.palpiteUsuario == p.palpiteIa;
+
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1A1A1A),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: Colors.greenAccent.withOpacity(0.3),
+                      color: concordou
+                          ? Colors.greenAccent
+                          : Colors.orangeAccent,
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item['jogo'] ?? '',
+                        p.campeonato,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        p.jogo,
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
-                        'Palpite: ${item['palpite']}',
-                        style: const TextStyle(color: Colors.greenAccent),
+                        'Seu palpite: ${p.palpiteUsuario}',
+                        style: const TextStyle(color: Colors.white70),
                       ),
                       Text(
-                        'Placar provável: ${item['placar']}',
+                        'Palpite IA: ${p.palpiteIa}',
                         style: const TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        'Confiança IA: ${p.confiancaIa}%',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        concordou
+                            ? '✔ Concordou com a IA'
+                            : '✖ Divergiu da IA',
+                        style: TextStyle(
+                          color: concordou
+                              ? Colors.greenAccent
+                              : Colors.orangeAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),

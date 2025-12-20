@@ -24,3 +24,5 @@ flutter:
 
   assets:
     - assets/matchmind_logo.png
+    - assets/campeonatos/
+    - assets/times/
