@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../data/historico_palpites.dart';
 
 class PalpitarScreen extends StatefulWidget {
   final String match;
@@ -34,39 +33,19 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
     final awayGoals = random.nextInt(4);
 
     iaScore = '$homeGoals x $awayGoals';
-
-    iaConfidence = 55 + random.nextInt(36); // 55% a 90%
+    iaConfidence = 60 + random.nextInt(31); // 60% a 90%
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool concordou = userPick != null && userPick == iaPick;
-
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        centerTitle: true,
-        title: const Text(
-          'ANÁLISE DO JOGO',
-          style: TextStyle(
-            color: Colors.greenAccent,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.greenAccent),
-      ),
       body: Stack(
         children: [
-          // FUNDO (CAMPO DE FUTEBOL)
+          // FUNDO CAMPO DE FUTEBOL
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0B6623),
-                  Color(0xFF013220),
-                ],
+                colors: [Color(0xFF0B6623), Color(0xFF013220)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -76,7 +55,23 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
           SafeArea(
             child: Column(
               children: [
-                const SizedBox(height: 20),
+                AppBar(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  centerTitle: true,
+                  iconTheme:
+                      const IconThemeData(color: Colors.greenAccent),
+                  title: const Text(
+                    'ANÁLISE DO JOGO',
+                    style: TextStyle(
+                      color: Colors.greenAccent,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
 
                 Text(
                   widget.match,
@@ -87,25 +82,24 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // PALPITE DA IA
                 _card(
                   title: 'PALPITE DA IA',
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _greenText('Resultado sugerido: $iaPick'),
-                      const SizedBox(height: 6),
-                      _greenText('Placar provável: $iaScore'),
-                      const SizedBox(height: 6),
-                      _greenText('Confiança: $iaConfidence%'),
+                      _info('Resultado sugerido:', iaPick),
+                      _info('Placar provável:', iaScore),
+                      _info('Confiança da IA:', '$iaConfidence%'),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // PALPITE DO USUÁRIO
+                // SEU PALPITE
                 _card(
                   title: 'SEU PALPITE',
                   child: Row(
@@ -126,21 +120,22 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
                   _card(
                     title: 'COMPARAÇÃO',
                     child: Text(
-                      concordou
-                          ? '✔️ Você concorda com a IA'
-                          : '❌ Você discorda da IA',
+                      userPick == iaPick
+                          ? '✔️ Seu palpite concorda com a IA'
+                          : '❌ Seu palpite é diferente da IA',
                       style: TextStyle(
-                        color:
-                            concordou ? Colors.greenAccent : Colors.redAccent,
-                        fontWeight: FontWeight.bold,
+                        color: userPick == iaPick
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
                         fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
 
                 const Spacer(),
 
-                // BOTÃO CONFIRMAR
+                // CONFIRMAR
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: SizedBox(
@@ -149,7 +144,8 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.greenAccent,
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -157,28 +153,15 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
                       onPressed: userPick == null
                           ? null
                           : () {
-                              HistoricoService.palpites.add(
-                                HistoricoPalpite(
-                                  campeonato: 'Brasileirão',
-                                  jogo: widget.match,
-                                  palpiteUsuario: userPick!,
-                                  palpiteIa: iaPick,
-                                  confiancaIa: iaConfidence,
-                                ),
-                              );
-
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text(
-                                    concordou
-                                        ? 'Você concordou com a IA ✅'
-                                        : 'Palpite salvo (diferente da IA)',
+                                    'Palpite registrado com sucesso!',
                                   ),
-                                  backgroundColor: concordou
-                                      ? Colors.green
-                                      : Colors.orange,
+                                  backgroundColor: Colors.green,
                                 ),
                               );
+                              Navigator.pop(context);
                             },
                       child: const Text(
                         'CONFIRMAR PALPITE',
@@ -235,9 +218,11 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withOpacity(0.55),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.greenAccent.withOpacity(0.6)),
+        border: Border.all(
+          color: Colors.greenAccent.withOpacity(0.5),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,15 +242,19 @@ class _PalpitarScreenState extends State<PalpitarScreen> {
     );
   }
 
-  Widget _greenText(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.greenAccent,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
+  Widget _info(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Text(
+        '$label $value',
+        style: const TextStyle(
+          color: Colors.greenAccent,
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 }
+
 
