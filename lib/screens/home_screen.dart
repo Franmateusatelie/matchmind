@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../services/football_api.dart';
 import 'palpitar_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,78 +9,86 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int ligaSelecionada = 71; // 71 = Brasileirão Série A
-  bool loading = true;
+  String campeonatoSelecionado = 'BRASILEIRAO_A';
 
-  List<Map<String, dynamic>> jogos = [];
-
-  final ligas = [
+  final campeonatos = [
     {
-      'id': 71,
+      'id': 'BRASILEIRAO_A',
       'nome': 'Série A',
       'icon': 'assets/campeonatos/brasileirao_a.png',
     },
     {
-      'id': 72,
+      'id': 'BRASILEIRAO_B',
       'nome': 'Série B',
       'icon': 'assets/campeonatos/brasileirao_b.png',
     },
     {
-      'id': 73,
+      'id': 'COPA_BRASIL',
       'nome': 'Copa do Brasil',
       'icon': 'assets/campeonatos/copa_brasil.png',
     },
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _carregarJogos();
-  }
-
-  Future<void> _carregarJogos() async {
-    setState(() => loading = true);
-
-    final hoje = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    try {
-      final response = await FootballApi.getFixturesByLeagueAndDate(
-        leagueId: ligaSelecionada,
-        season: DateTime.now().year,
-        dateYYYYMMDD: hoje,
-      );
-
-      setState(() {
-        jogos = response;
-        loading = false;
-      });
-    } catch (e) {
-      setState(() => loading = false);
-    }
-  }
+  final jogos = [
+    {
+      'campeonato': 'BRASILEIRAO_A',
+      'home': 'Flamengo',
+      'away': 'Palmeiras',
+      'homeIcon': 'assets/times/flamengo.png',
+      'awayIcon': 'assets/times/palmeiras.png',
+      'hora': '21:30',
+      'data': 'Hoje',
+    },
+    {
+      'campeonato': 'BRASILEIRAO_A',
+      'home': 'Corinthians',
+      'away': 'São Paulo',
+      'homeIcon': 'assets/times/corinthians.png',
+      'awayIcon': 'assets/times/saopaulo.png',
+      'hora': '19:00',
+      'data': 'Hoje',
+    },
+    {
+      'campeonato': 'BRASILEIRAO_B',
+      'home': 'Sport',
+      'away': 'Ceará',
+      'homeIcon': 'assets/times/sport.png',
+      'awayIcon': 'assets/times/ceara.png',
+      'hora': '18:30',
+      'data': 'Amanhã',
+    },
+    {
+      'campeonato': 'COPA_BRASIL',
+      'home': 'Grêmio',
+      'away': 'Internacional',
+      'homeIcon': 'assets/times/gremio.png',
+      'awayIcon': 'assets/times/internacional.png',
+      'hora': '20:00',
+      'data': 'Amanhã',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final jogosFiltrados =
+        jogos.where((j) => j['campeonato'] == campeonatoSelecionado).toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFF0E0E0E),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 12),
-
-            Image.asset('assets/matchmind_logo.png', height: 110),
-
-            const SizedBox(height: 8),
-
+            Image.asset('assets/matchmind_logo.png', height: 90),
+            const SizedBox(height: 10),
             const Text(
               'PALPITES INTELIGENTES',
               style: TextStyle(
                 color: Colors.greenAccent,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.4,
+                letterSpacing: 1.3,
               ),
             ),
-
             const SizedBox(height: 20),
 
             // CAMPEONATOS
@@ -91,37 +97,34 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 scrollDirection: Axis.horizontal,
-                itemCount: ligas.length,
+                itemCount: campeonatos.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 14),
                 itemBuilder: (context, index) {
-                  final liga = ligas[index];
-                  final ativo = liga['id'] == ligaSelecionada;
+                  final camp = campeonatos[index];
+                  final ativo = camp['id'] == campeonatoSelecionado;
 
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        ligaSelecionada = liga['id'] as int;
+                        campeonatoSelecionado = camp['id']!;
                       });
-                      _carregarJogos();
                     },
                     child: Container(
                       width: 80,
                       decoration: BoxDecoration(
-                        color:
-                            ativo ? Colors.greenAccent : const Color(0xFF1A1A1A),
+                        color: ativo
+                            ? Colors.greenAccent
+                            : const Color(0xFF1A1A1A),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: Colors.greenAccent.withOpacity(0.5),
-                        ),
                       ),
                       padding: const EdgeInsets.all(10),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset(liga['icon'] as String, height: 32),
+                          Image.asset(camp['icon']!, height: 32),
                           const SizedBox(height: 6),
                           Text(
-                            liga['nome'] as String,
+                            camp['nome']!,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -139,110 +142,75 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 16),
 
-            // JOGOS
             Expanded(
-              child: loading
+              child: jogosFiltrados.isEmpty
                   ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.greenAccent,
+                      child: Text(
+                        'Nenhum jogo disponível',
+                        style: TextStyle(color: Colors.white70),
                       ),
                     )
-                  : jogos.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Nenhum jogo hoje',
-                            style: TextStyle(color: Colors.white70),
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: jogosFiltrados.length,
+                      itemBuilder: (context, index) {
+                        final j = jogosFiltrados[index];
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1A1A1A),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                        )
-                      : ListView.builder(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: jogos.length,
-                          itemBuilder: (context, index) {
-                            final j = jogos[index];
-                            final home = j['teams']['home'];
-                            final away = j['teams']['away'];
-                            final date =
-                                DateTime.parse(j['fixture']['date']);
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1A1A1A),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color:
-                                      Colors.greenAccent.withOpacity(0.3),
-                                ),
-                              ),
-                              child: Column(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      _time(home['logo'], home['name']),
-                                      const Text(
-                                        'X',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      _time(away['logo'], away['name']),
-                                    ],
-                                  ),
-
-                                  const SizedBox(height: 10),
-
-                                  Text(
-                                    DateFormat('HH:mm').format(date),
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 12),
-
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            Colors.greenAccent,
-                                        foregroundColor: Colors.black,
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 14),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => PalpitarScreen(
-                                              match:
-                                                  '${home['name']} x ${away['name']}',
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: const Text(
-                                        'ANALISAR / PALPITAR',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  _time(j['homeIcon']!, j['home']!),
+                                  const Text('X',
+                                      style: TextStyle(color: Colors.white)),
+                                  _time(j['awayIcon']!, j['away']!),
                                 ],
                               ),
-                            );
-                          },
-                        ),
+                              const SizedBox(height: 10),
+                              Text(
+                                '${j['data']} • ${j['hora']}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.greenAccent,
+                                    foregroundColor: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PalpitarScreen(
+                                          match:
+                                              '${j['home']} x ${j['away']}',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text(
+                                    'ANALISAR / PALPITAR',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -250,10 +218,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _time(String logoUrl, String nome) {
+  Widget _time(String icon, String nome) {
     return Column(
       children: [
-        Image.network(logoUrl, height: 40),
+        Image.asset(icon, height: 40),
         const SizedBox(height: 6),
         Text(
           nome,
@@ -262,12 +230,12 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
-          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 }
+
 
 
 
